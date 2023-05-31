@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors')
 const app = express();
@@ -568,7 +569,131 @@ app.delete('/userplaylists/:id', (req, res) => {
   }
 });
 
-/* fim request de playlist usarios */
+const { Sequelize, Model, DataTypes } = require('sequelize');
+
+const sequelize = new Sequelize('trabweb', 'sarmuns', 'docker', {
+  host: 'localhost',
+  dialect: 'postgres',
+});
+
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection to the database has been established successfully.');
+  })
+  .catch((error) => {
+    console.error('Unable to connect to the database:', error);
+  });
+
+
+// Define Musicas model
+class Musicas extends Model {}
+Musicas.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+    nome: {
+      type: DataTypes.STRING,
+    },
+    artista: {
+      type: DataTypes.STRING,
+    },
+    imgpath: {
+      type: DataTypes.STRING,
+    },
+    audiopath: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'Musicas',
+    tableName: 'Musicas',
+  }
+);
+
+// Define Accounts model
+class Accounts extends Model {}
+Accounts.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+    },
+    email: {
+      type: DataTypes.STRING,
+    },
+    password: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'Accounts',
+    tableName: 'Accounts',
+  }
+);
+
+// Define userPlaylists model
+class UserPlaylists extends Model {}
+UserPlaylists.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+    },
+    musics: {
+      type: DataTypes.ARRAY(DataTypes.INTEGER),
+    },
+    userid: {
+      type: DataTypes.INTEGER,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'UserPlaylists',
+    tableName: 'userPlaylists',
+  }
+);
+
+
+const fetchTablesData = async () => {
+  try {
+    const musicas = await Musicas.findAll({
+      attributes: { exclude: ['createdAt', 'updatedAt'] }
+    });
+
+    const accounts = await Accounts.findAll({
+      attributes: { exclude: ['createdAt', 'updatedAt'] }
+    });
+
+    const userPlaylists = await UserPlaylists.findAll({
+      attributes: { exclude: ['createdAt', 'updatedAt'] }
+    });
+
+    console.log('Musicas:');
+    console.log(musicas.map((musica) => musica.dataValues));
+
+    console.log('Accounts:');
+    console.log(accounts.map((account) => account.dataValues));
+
+     console.log('User Playlists:');
+    console.log(userPlaylists.map((playlist) => playlist.dataValues));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+fetchTablesData();
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
