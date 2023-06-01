@@ -202,7 +202,7 @@ let musicas = [];
 // Fetch all Tables
 const fetchTablesData = async () => {
   try {
-    musicas = await FreeMusica.findAll({
+    musicas = await Musicas.findAll({
       attributes: { exclude: ['createdAt', 'updatedAt'] },
     });
 
@@ -244,6 +244,8 @@ const fetchTablesData = async () => {
     musicas = musicas.map((musica) => musica.dataValues);
     accounts = accounts.map((account) => account.dataValues);
     userPlaylists = userPlaylists.map((playlist) => playlist.dataValues);
+
+    console.log(musicas)
 
   } catch (error) {
     console.error('Error fetching data:', error);
